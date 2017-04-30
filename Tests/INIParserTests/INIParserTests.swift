@@ -33,13 +33,13 @@ class INIParserTests: XCTestCase {
       do {
         let ini = try INIParser(path)
         XCTAssertEqual(ini.anonymousSection["freeVar1"] ?? "", "1")
-        XCTAssertEqual(ini.anonymousSection["freeVar2"] ?? "", "2;")
+        XCTAssertEqual(ini.anonymousSection["freeVar2"] ?? "", "2")
         XCTAssertEqual(ini.sections["[owner]"]?["name"] ?? "", "Rocky")
         XCTAssertEqual(ini.sections["[owner]"]?["organization"] ?? "", "PerfectlySoft")
-        XCTAssertEqual(ini.sections["[database]"]?["server"] ?? "", "192.0.2.42 ; use IP address in case network name resolution is not working")
+        XCTAssertEqual(ini.sections["[database]"]?["server"] ?? "", "192.0.2.42")
         XCTAssertEqual(ini.sections["[database]"]?["port"] ?? "", "143")
         XCTAssertEqual(ini.sections["[database]"]?["file"] ?? "", "\"中文.dat\"")
-        XCTAssertEqual(ini.sections["[汉化]"]?["变量1"] ?? "", "🇨🇳 ;使用utf8")
+        XCTAssertEqual(ini.sections["[汉化]"]?["变量1"] ?? "", "🇨🇳")
         XCTAssertEqual(ini.sections["[汉化]"]?["变量2"] ?? "", "加拿大。   ~")
       }catch (let err) {
         XCTFail(err.localizedDescription)

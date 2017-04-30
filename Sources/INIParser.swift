@@ -87,8 +87,22 @@ public class INIParser {
   }//end parseEquation
 
   internal func decommented(line: String) -> String {
-    guard let first = line.utf8.first, first != 59 && first != 35 else { return "" }
-    return line
+
+    guard let str = strdup(line) else { return line }
+
+    if let a = strchr(str, 59) {
+      a.pointee = 0
+    }//end if
+
+    if let b = strchr(str, 35) {
+      b.pointee = 0
+    }//end if
+
+    let ret = String(cString: str)
+
+    free(str)
+
+    return ret
   }//end func
 
   deinit {
