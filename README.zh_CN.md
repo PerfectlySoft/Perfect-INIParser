@@ -23,7 +23,8 @@
 
 <p align="center">
     <a href="https://developer.apple.com/swift/" target="_blank">
-        <img src="https://img.shields.io/badge/Swift-3.0-orange.svg?style=flat" alt="Swift 3.0">
+        <img src="https://img.shields.io/badge/Swift-4.0-orange.svg?style=flat" alt="Swift 4.0">
+        <img src="https://img.shields.io/badge/Swift-3.1-orange.svg?style=flat" alt="Swift 3.1">
     </a>
     <a href="https://developer.apple.com/swift/" target="_blank">
         <img src="https://img.shields.io/badge/Platforms-OS%20X%20%7C%20Linux%20-lightgray.svg?style=flat" alt="Platforms OS X | Linux">
@@ -47,9 +48,23 @@
 
 配置 Package.swift 文件：
 
+如果使用 Swift 3.1:
+
 ``` swift
 .Package(url: "https://github.com/PerfectlySoft/Perfect-INIParser.git", majorVersion: 1)
 ```
+
+如果使用 Swift 4.0:
+
+``` swift
+.package(url: "https://github.com/PerfectlySoft/Perfect-INIParser.git", from: "1.0.0")
+
+...
+
+.target( name: "YourProjectName",
+	dependencies: ["INIParser"]),
+	
+``` 
 
 导入函数库：
 
