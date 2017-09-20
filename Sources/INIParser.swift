@@ -133,7 +133,8 @@ public class INIParser {
     buf.advanced(by: size).pointee = 0
     let content = String(cString: buf)
     buf.deallocate(capacity: size + 1)
-    let lines = content.utf8.split(separator: 10)
+    let lines:[String] = content.utf8.split(separator: 10)
+      .map { String($0) ?? "" }
       .map { decommented(line: trim(String(describing: $0))) }
       .filter { !$0.isEmpty }
     var section = ""
