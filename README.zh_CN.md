@@ -24,7 +24,6 @@
 <p align="center">
     <a href="https://developer.apple.com/swift/" target="_blank">
         <img src="https://img.shields.io/badge/Swift-4.0-orange.svg?style=flat" alt="Swift 4.0">
-        <img src="https://img.shields.io/badge/Swift-3.1-orange.svg?style=flat" alt="Swift 3.1">
     </a>
     <a href="https://developer.apple.com/swift/" target="_blank">
         <img src="https://img.shields.io/badge/Platforms-OS%20X%20%7C%20Linux%20-lightgray.svg?style=flat" alt="Platforms OS X | Linux">
@@ -42,22 +41,14 @@
 
 本项目是一个简单的[INI文件](http://baike.baidu.com/item/ini文件)解析器。
 
-本项目采用Swift 3.1 工具链中的SPM软件包管理器编译，是[Perfect](https://github.com/PerfectlySoft/Perfect) 项目的一部分，但也可以作为独立模块使用。
+本项目采用Swift 4 工具链中的SPM软件包管理器编译，是[Perfect](https://github.com/PerfectlySoft/Perfect) 项目的一部分，但也可以作为独立模块使用。
 
 ## 快速上手
 
 配置 Package.swift 文件：
 
-如果使用 Swift 3.1:
-
 ``` swift
-.Package(url: "https://github.com/PerfectlySoft/Perfect-INIParser.git", majorVersion: 1)
-```
-
-如果使用 Swift 4.0:
-
-``` swift
-.package(url: "https://github.com/PerfectlySoft/Perfect-INIParser.git", from: "1.0.0")
+.package(url: "https://github.com/PerfectlySoft/Perfect-INIParser.git", from: "3.0.0")
 
 ...
 
@@ -89,7 +80,7 @@ let ini = try INIParser("/path/to/somefile.ini")
 myVariable = myValue
 ```
 
-此时使用语句 `let v = ini.sections["[GroupA]"]?["myVariable"]` 可以得到字符串值 `"myValue"`.
+此时使用语句 `let v = ini.sections["GroupA"]?["myVariable"]` 可以得到字符串值 `"myValue"`.
 
 ### 无章节变量
 

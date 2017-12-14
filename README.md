@@ -24,7 +24,6 @@
 <p align="center">
     <a href="https://developer.apple.com/swift/" target="_blank">
         <img src="https://img.shields.io/badge/Swift-4.0-orange.svg?style=flat" alt="Swift 4.0">
-        <img src="https://img.shields.io/badge/Swift-3.1-orange.svg?style=flat" alt="Swift 3.1">
     </a>
     <a href="https://developer.apple.com/swift/" target="_blank">
         <img src="https://img.shields.io/badge/Platforms-OS%20X%20%7C%20Linux%20-lightgray.svg?style=flat" alt="Platforms OS X | Linux">
@@ -42,22 +41,14 @@
 
 This project provides an express parser for [INI](https://en.wikipedia.org/wiki/INI_file) files.
 
-This package builds with Swift Package Manager of Swift 3.1 Tool Chain and is part of the [Perfect](https://github.com/PerfectlySoft/Perfect) project but can be used as an independent module.
+This package builds with Swift Package Manager of Swift 4 Tool Chain and is part of the [Perfect](https://github.com/PerfectlySoft/Perfect) project but can be used as an independent module.
 
 ## Quick Start
 
 Configure Package.swift:
 
-For Swift 3.1:
-
 ``` swift
-.Package(url: "https://github.com/PerfectlySoft/Perfect-INIParser.git", majorVersion: 1)
-```
-
-For Swift 4.0:
-
-``` swift
-.package(url: "https://github.com/PerfectlySoft/Perfect-INIParser.git", from: "1.0.0")
+.package(url: "https://github.com/PerfectlySoft/Perfect-INIParser.git", from: "3.0.0")
 
 ...
 
@@ -89,7 +80,7 @@ For most regular lines under a certain section, use `sections` attribute of `INI
 myVariable = myValue
 ```
 
-Then `let v = ini.sections["[GroupA]"]?["myVariable"]` will get the value as `"myValue"`.
+Then `let v = ini.sections["GroupA"]?["myVariable"]` will get the value as `"myValue"`.
 
 ### Variables without Section
 

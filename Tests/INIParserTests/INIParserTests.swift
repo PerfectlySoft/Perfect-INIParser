@@ -22,25 +22,39 @@ import XCTest
 
 class INIParserTests: XCTestCase {
     func testExample() {
-      let raw = "; last modified 1 April 2017 by Rockford Wei \t   \n ## This is another comment \n  freeVar1 = 1 \n freeVar2 = 2;  \n [owner]  \n " +
-        "name =  Rocky \n  organization = PerfectlySoft \n     ; \n   [database] \n " +
-        "\t\t server = 192.0.2.42 ; use IP address in case network name resolution is not working \n \n\n\n " +
-      " port = 143 \n file = \"中文.dat\" \n      [汉化] \n    变量1 = 🇨🇳 ;使用utf8 \n   变量2 = 加拿大。   ~ \n  [ bad sec \n even worse ] \n [ 乱死了 ] \n = 没变量 \n novalue =  \n"
+      let raw = """
+; last modified 1 April 2017 by Rockford Wei
+## This is another comment
+  freeVar1 = 1
+  freeVar2 = 2;
+  [owner]
+  name =  Rocky
+  organization = PerfectlySoft
+  ;
+  [database]
+      server = 192.0.2.42 ; use IP address in case network name resolution is not working
+
+      port = 143
+      file = \"中文.dat  ' ' \"
+  [汉化]
+  变量1 = 🇨🇳 ;使用utf8
+  变量2 = 加拿大。
+  [ 乱死了 ]
+"""
+
       let path = "/tmp/a.ini"
-      let f = fopen(path, "w")
-      fwrite(raw, 1, raw.utf8.count, f)
-      fclose(f)
       do {
+        try raw.write(to: URL.init(fileURLWithPath: path), atomically: true, encoding: .utf8)
         let ini = try INIParser(path)
         XCTAssertEqual(ini.anonymousSection["freeVar1"] ?? "", "1")
         XCTAssertEqual(ini.anonymousSection["freeVar2"] ?? "", "2")
-        XCTAssertEqual(ini.sections["[owner]"]?["name"] ?? "", "Rocky")
-        XCTAssertEqual(ini.sections["[owner]"]?["organization"] ?? "", "PerfectlySoft")
-        XCTAssertEqual(ini.sections["[database]"]?["server"] ?? "", "192.0.2.42")
-        XCTAssertEqual(ini.sections["[database]"]?["port"] ?? "", "143")
-        XCTAssertEqual(ini.sections["[database]"]?["file"] ?? "", "\"中文.dat\"")
-        XCTAssertEqual(ini.sections["[汉化]"]?["变量1"] ?? "", "🇨🇳")
-        XCTAssertEqual(ini.sections["[汉化]"]?["变量2"] ?? "", "加拿大。   ~")
+        XCTAssertEqual(ini.sections["owner"]?["name"] ?? "", "Rocky")
+        XCTAssertEqual(ini.sections["owner"]?["organization"] ?? "", "PerfectlySoft")
+        XCTAssertEqual(ini.sections["database"]?["server"] ?? "", "192.0.2.42")
+        XCTAssertEqual(ini.sections["database"]?["port"] ?? "", "143")
+        XCTAssertEqual(ini.sections["database"]?["file"] ?? "", "\"中文.dat  \' \' \"")
+        XCTAssertEqual(ini.sections["汉化"]?["变量1"] ?? "", "🇨🇳")
+        XCTAssertEqual(ini.sections["汉化"]?["变量2"] ?? "", "加拿大。")
       }catch (let err) {
         XCTFail(err.localizedDescription)
       }

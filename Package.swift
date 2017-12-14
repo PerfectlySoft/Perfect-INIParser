@@ -1,3 +1,5 @@
+// swift-tools-version:4.0
+// The swift-tools-version declares the minimum version of Swift required to build this package.
 //
 //  Package.swift
 //  Perfect-INIParser
@@ -20,5 +22,20 @@
 import PackageDescription
 
 let package = Package(
-    name: "INIParser"
+    name: "INIParser",
+    products: [
+        .library(
+            name: "INIParser",
+            targets: ["INIParser"]),
+    ],
+    dependencies: [
+    ],
+    targets: [
+        .target(
+            name: "INIParser",
+            dependencies: []),
+        .testTarget(
+            name: "INIParserTests",
+            dependencies: ["INIParser"]),
+    ]
 )
