@@ -89,6 +89,8 @@ public class INIParser {
           variable = cache
           cache = ""
           state = .Value
+        } else {
+            cache.append(c)
         }
         break
       case "#", ";":

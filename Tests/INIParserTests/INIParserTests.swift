@@ -27,6 +27,7 @@ class INIParserTests: XCTestCase {
 ## This is another comment
   freeVar1 = 1
   freeVar2 = 2;
+  url = http://example.com/results?limit=10
   [owner]
   name =  Rocky
   organization = PerfectlySoft
@@ -48,6 +49,7 @@ class INIParserTests: XCTestCase {
         let ini = try INIParser(path)
         XCTAssertEqual(ini.anonymousSection["freeVar1"] ?? "", "1")
         XCTAssertEqual(ini.anonymousSection["freeVar2"] ?? "", "2")
+        XCTAssertEqual(ini.anonymousSection["url"] ?? "", "http://example.com/results?limit=10")
         XCTAssertEqual(ini.sections["owner"]?["name"] ?? "", "Rocky")
         XCTAssertEqual(ini.sections["owner"]?["organization"] ?? "", "PerfectlySoft")
         XCTAssertEqual(ini.sections["database"]?["server"] ?? "", "192.0.2.42")
