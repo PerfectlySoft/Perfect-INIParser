@@ -150,7 +150,6 @@ public class INIParser {
     var title: String? = nil
     for line in lines {
       if let content = try parse(line: line) {
-        debugPrint(content)
         switch content {
         case .Section(let newTitle):
           title = newTitle
