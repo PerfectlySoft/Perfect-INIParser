@@ -159,7 +159,7 @@ public class INIParser {
     try self.init(string: text)
   }
 
-  /// Convenience constructor
+  /// Constructor
   /// - parameters:
   ///   - string: String content of an INI file
   /// - throws:
