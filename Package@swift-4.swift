@@ -20,7 +20,7 @@
 //
 
 import PackageDescription
-d
+
 let package = Package(
     name: "INIParser",
     products: [
