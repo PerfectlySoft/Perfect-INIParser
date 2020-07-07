@@ -136,17 +136,36 @@ public class INIParser {
     }
     return ContentType.Assignment(v, cache)
   }
-  /// Constructor
+
+  /// Convenience constructor
   /// - parameters:
   ///   - path: path of INI file to load
   /// - throws:
   ///   Exception
-  public init(_ path: String) throws {
-    let data = try Data(contentsOf: URL(fileURLWithPath: path))
+  public convenience init(_ path: String) throws {
+     let data = try Data(contentsOf: URL(fileURLWithPath: path))
+    try self.init(data: data)
+  }
+
+  /// Convenience constructor
+  /// - parameters:
+  ///   - data: Data of an INI file
+  /// - throws:
+  ///   Exception
+  public convenience init(data: Data) throws {
     guard let text = String(bytes: data, encoding: .utf8) else {
       throw Exception.InvalidFile
     }
-    let lines: [String] = text.split(separator: "\n").map { String($0) }
+    try self.init(string: text)
+  }
+
+  /// Constructor
+  /// - parameters:
+  ///   - string: String content of an INI file
+  /// - throws:
+  ///   Exception
+  public init(string: String) throws {
+    let lines: [String] = string.split(separator: "\n").map { String($0) }
     var title: String? = nil
     for line in lines {
       if let content = try parse(line: line) {
