@@ -32,8 +32,8 @@ class INIParserTests: XCTestCase {
       freeVar1 = 1
       freeVar2 = 2;
       url = http://example.com/results?limit=10
-      [owner]
-      name =  Rocky
+      [owner]\r
+      name =  Rocky\r
       organization = PerfectlySoft
       ;
       [database]

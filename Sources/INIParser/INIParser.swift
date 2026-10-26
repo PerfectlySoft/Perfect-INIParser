@@ -165,7 +165,7 @@ public class INIParser {
   /// - throws:
   ///   Exception
   public init(string: String) throws {
-    let lines: [String] = string.split(separator: "\n").map { String($0) }
+    let lines: [String] = string.components(separatedBy: .newlines).compactMap{$0.isEmpty ? nil : $0}
     var title: String? = nil
     for line in lines {
       if let content = try parse(line: line) {
