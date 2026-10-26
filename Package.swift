@@ -1,5 +1,4 @@
-// swift-tools-version:5.0
-// The swift-tools-version declares the minimum version of Swift required to build this package.
+// swift-tools-version: 6.2
 //
 //  Package.swift
 //  Perfect-INIParser
@@ -11,7 +10,7 @@
 //
 // This source file is part of the Perfect.org open source project
 //
-// Copyright (c) 2017 - 2018 PerfectlySoft Inc. and the Perfect project authors
+// Copyright (c) 2017 - 2026 PerfectlySoft Inc. and the Perfect project authors
 // Licensed under Apache License v2.0
 //
 // See http://perfect.org/licensing.html for license information
@@ -23,17 +22,15 @@ import PackageDescription
 
 let package = Package(
     name: "INIParser",
+    platforms: [.macOS(.v12)],
     products: [
         .library(
             name: "INIParser",
             targets: ["INIParser"]),
     ],
-    dependencies: [
-    ],
     targets: [
         .target(
-            name: "INIParser",
-            dependencies: []),
+            name: "INIParser"),
         .testTarget(
             name: "INIParserTests",
             dependencies: ["INIParser"]),

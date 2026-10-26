@@ -9,7 +9,7 @@
 //
 // This source file is part of the Perfect.org open source project
 //
-// Copyright (c) 2017 - 2018 PerfectlySoft Inc. and the Perfect project authors
+// Copyright (c) 2017 - 2026 PerfectlySoft Inc. and the Perfect project authors
 // Licensed under Apache License v2.0
 //
 // See http://perfect.org/licensing.html for license information
@@ -19,114 +19,79 @@
 
 import Foundation
 
-public class Stack<T> {
-  internal var array: [T] = []
-  public func push(_ element: T) {
-    array.append(element)
-  }
-  public func pop () -> T? {
-    if array.isEmpty { return nil }
-    let element = array.removeLast()
-    return element
-  }
-  public func top () -> T? {
-    return array.last
-  }
-  public var isEmpty: Bool { return array.isEmpty }
-}
-
 /// INI Configuration File Reader
-public class INIParser {
+///
+/// Lines may end in `\n`, `\r\n` or `\r`. On each line, `;` or `#` starts a comment (outside
+/// quotes), `[name]` starts a section, and `key = value` assigns a value. Keys, values and section
+/// names are trimmed of surrounding spaces and tabs; spaces inside them are kept. A quoted value
+/// keeps its quotes, and `;`, `#`, `[`, `]` and `=` inside quotes are part of the value. A variable
+/// that appears before any section goes in `anonymousSection`. A later assignment to the same
+/// variable in the same section replaces the earlier one, and repeated sections are merged.
+public final class INIParser: Sendable {
 
-  internal var _sections: [String: [String: String]] = [:]
-  internal var _anonymousSection: [String: String] = [:]
+  /// Variables by section name, then variable name. Sections with no variables are left out.
+  public let sections: [String: [String: String]]
+  /// Variables that appear before the first section.
+  public let anonymousSection: [String: String]
 
-  public var sections: [String:[String:String]] { return _sections }
-  public var anonymousSection: [String: String] { return _anonymousSection }
-
-  public enum Exception: Error {
-    case InvalidSyntax, InvalidFile
+  public enum Exception: Error, Sendable {
+    /// A line isn't a comment, a section or an assignment, or a quote or `[` isn't closed.
+    case InvalidSyntax
+    /// The data isn't UTF-8 text.
+    case InvalidFile
   }
 
   enum State {
     case Title, Variable, Value, SingleQuotation, DoubleQuotation
   }
 
-  enum ContentType {
+  enum ContentType: Equatable {
     case Section(String)
     case Assignment(String, String)
   }
 
-  internal func parse(line: String) throws -> ContentType? {
+  internal static func parse(line: String) throws -> ContentType? {
     var cache = ""
     var state = State.Variable
-    let stack = Stack<State>()
+    // The state to return to when a quotation closes.
+    var beforeQuotation = State.Variable
 
     var variable: String? = nil
     for c in line {
       switch c {
-      case " ", "\t":
+      case "[" where state == .Variable && cache.isBlank:
+        cache = ""
+        state = .Title
+      case "]" where state == .Title:
+        return ContentType.Section(cache.trimmed)
+      case "=" where state == .Variable:
+        variable = cache.trimmed
+        cache = ""
+        state = .Value
+      case "#", ";":
         if state == .SingleQuotation || state == .DoubleQuotation {
           cache.append(c)
-        }
-        break
-      case "[":
-        if state == .Variable {
-          cache = ""
-          stack.push(state)
-          state = .Title
-        }
-        break
-      case "]":
-        if state == .Title {
-          guard let last = stack.pop() else { throw Exception.InvalidSyntax }
-          state = last
-          return ContentType.Section(cache)
-        }
-        break
-      case "=":
-        if state == .Variable {
-          variable = cache
-          cache = ""
-          state = .Value
-        } else {
-            cache.append(c)
-        }
-        break
-      case "#", ";":
-        if state == .Value {
-          if let v = variable {
-            return ContentType.Assignment(v, cache)
-          } else {
-            throw Exception.InvalidSyntax
-          }
+        } else if state == .Value, let v = variable {
+          return ContentType.Assignment(v, cache.trimmed)
         } else {
           return nil
         }
-      case "\"":
+      case "\"" where state != .SingleQuotation && state != .Title:
         if state == .DoubleQuotation {
-          guard let last = stack.pop() else {
-            throw Exception.InvalidSyntax
-          }
-          state = last
+          state = beforeQuotation
         } else {
-          stack.push(state)
+          beforeQuotation = state
           state = .DoubleQuotation
         }
         cache.append(c)
-        break
-      case "\'":
+      case "\'" where state != .DoubleQuotation && state != .Title:
         if state == .SingleQuotation {
-          guard let last = stack.pop() else {
-            throw Exception.InvalidSyntax
-          }
-          state = last
+          state = beforeQuotation
         } else {
-          stack.push(state)
+          beforeQuotation = state
           state = .SingleQuotation
         }
         cache.append(c)
-        break
       default:
         cache.append(c)
       }
@@ -134,7 +99,7 @@ public class INIParser {
     guard state == .Value, let v = variable else {
       throw Exception.InvalidSyntax
     }
-    return ContentType.Assignment(v, cache)
+    return ContentType.Assignment(v, cache.trimmed)
   }
 
   /// Convenience constructor
@@ -143,13 +108,13 @@ public class INIParser {
   /// - throws:
   ///   Exception
   public convenience init(_ path: String) throws {
-     let data = try Data(contentsOf: URL(fileURLWithPath: path))
+    let data = try Data(contentsOf: URL(fileURLWithPath: path))
     try self.init(data: data)
   }
 
   /// Convenience constructor
   /// - parameters:
-  ///   - data: Data of an INI file
+  ///   - data: Data of an INI file, in UTF-8 (a leading byte order mark is skipped)
   /// - throws:
   ///   Exception
   public convenience init(data: Data) throws {
@@ -165,30 +130,35 @@ public class INIParser {
   /// - throws:
   ///   Exception
   public init(string: String) throws {
-    let lines: [String] = string.split(separator: "\n").map { String($0) }
+    var text = Substring(string)
+    if text.first == "\u{FEFF}" { text = text.dropFirst() }
+    // Swift treats "\r\n" as one Character, so splitting on "\n" alone leaves CRLF files unsplit.
+    let lines = text.split(omittingEmptySubsequences: true) { $0.isNewline }
+    var sections: [String: [String: String]] = [:]
+    var anonymousSection: [String: String] = [:]
     var title: String? = nil
-    for line in lines {
-      if let content = try parse(line: line) {
-        switch content {
-        case .Section(let newTitle):
-          title = newTitle
-          break
-        case .Assignment(let variable, let value):
-          if let currentTitle = title {
-            if var sec = _sections[currentTitle] {
-              sec[variable] = value
-              _sections[currentTitle] = sec
-            } else {
-              var sec: [String: String] = [:]
-              sec[variable] = value
-              _sections[currentTitle] = sec
-            }
-          } else {
-            _anonymousSection[variable] = value
-          }
-          break
+    for line in lines where !String(line).isBlank {
+      switch try Self.parse(line: String(line)) {
+      case .Section(let newTitle):
+        title = newTitle
+      case .Assignment(let variable, let value):
+        if let currentTitle = title {
+          sections[currentTitle, default: [:]][variable] = value
+        } else {
+          anonymousSection[variable] = value
         }
+      case nil:
+        break
       }
     }
+    self.sections = sections
+    self.anonymousSection = anonymousSection
   }
+}
+
+extension String {
+  /// Without leading and trailing spaces and tabs.
+  var trimmed: String { trimmingCharacters(in: CharacterSet(charactersIn: " \t")) }
+  /// Empty, or only spaces and tabs.
+  var isBlank: Bool { allSatisfy { $0 == " " || $0 == "\t" } }
 }
